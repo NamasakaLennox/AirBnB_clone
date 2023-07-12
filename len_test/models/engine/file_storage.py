@@ -49,7 +49,9 @@ class FileStorage:
         """
         Retrieves(deserializes) the JSON file to '__objects' attribute
         """
+        # import the required modules
         from models.base_model import BaseModel
+        from models.user import User
 
         if os.path.isfile(self.__file_path):
             # open the file as read only
@@ -58,4 +60,5 @@ class FileStorage:
                 self.__objects = {}  # initialize it as empty
                 # create objects from the json file extracts
                 for key, value in temp.items():
-                    self.__objects[key] = BaseModel(**value)
+                    # get name of class and construct the object from it
+                    self.__objects[key] = eval(value['__class__'])(**value)

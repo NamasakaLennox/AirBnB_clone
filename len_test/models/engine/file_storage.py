@@ -42,7 +42,7 @@ class FileStorage:
             temp[key] = value.to_dict()
 
         # save the dictionary as a json file
-        with open(self.__file_path, "w") as file_write:
+        with open(self.__file_path, "w", encoding="utf-8") as file_write:
             file_write.write(json.dumps(temp))
 
     def reload(self):
@@ -60,7 +60,7 @@ class FileStorage:
 
         if os.path.isfile(self.__file_path):
             # open the file as read only
-            with open(self.__file_path, "r") as file_read:
+            with open(self.__file_path, "r", encoding="utf-8") as file_read:
                 temp = json.loads(file_read.read())  # load the json string
                 self.__objects = {}  # initialize it as empty
                 # create objects from the json file extracts

@@ -22,7 +22,6 @@ class HBNBCommand(cmd.Cmd):
     class_list = ["BaseModel", "User", "State", "City",
                   "Amenity", "Place", "Review"]
 
-
     def do_create(self, args):
         """Creates a new instance of the BaseModel class
         Saves it and prints the id of the instance

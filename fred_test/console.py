@@ -151,13 +151,10 @@ class HBNBCommand(cmd.Cmd):
         """
         cmds = args.split(" ")
         attr = cmds[2] if len(cmds) > 2 else None
-        exp = ""
         val = cmds[3].strip(' "' + "'") if len(cmds) > 3 else None
-        if not attr:
-            print("** attribute name missing **")
-        elif not val:
-            print("** value missing **")
-        elif self.is_valid_class(args):
+
+
+        if self.is_valid_class(args):
             obj = self.get_obj(cmds[1])
 
             if type(obj) != str and obj.to_dict().get(attr):
@@ -165,6 +162,10 @@ class HBNBCommand(cmd.Cmd):
                 setattr(obj, attr, ty_pe(val))
             elif type(obj) == str:
                 print(obj)
+        elif not attr:
+            print("** attribute name missing **")
+        elif not val:
+            print("** value missing **")
 
 
 if __name__ == '__main__':

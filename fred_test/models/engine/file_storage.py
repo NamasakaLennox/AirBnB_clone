@@ -3,7 +3,6 @@
 A module that contains the file storage class
 """
 import json
-from models.base_model import BaseModel
 
 
 class FileStorage:
@@ -43,6 +42,7 @@ class FileStorage:
         (only if the JSON `__file_path` exists)
         """
         try:
+            from models.base_model import BaseModel
             with open(self.__file_path, "r") as fstore:
                 st_objs = json.load(fstore)
                 for key, value in st_objs.items():

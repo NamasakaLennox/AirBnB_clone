@@ -1,1 +1,1 @@
-{"User.b8de3d23-9682-4635-97b4-fa6e529091f4": {"my_number": "69", "name": "NAME", "__class__": "User", "updated_at": "2023-07-13 20:29:47.273968", "id": "b8de3d23-9682-4635-97b4-fa6e529091f4", "created_at": "2023-07-13 20:29:47.273843"}}
+{"User.b8de3d23-9682-4635-97b4-fa6e529091f4": {"my_number": "69", "name": "new_name", "updated_at": "2023-07-13T20:29:47.273968", "id": "b8de3d23-9682-4635-97b4-fa6e529091f4", "created_at": "2023-07-13T20:29:47.273843", "new": "attr", "__class__": "User"}}

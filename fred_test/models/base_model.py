@@ -45,17 +45,8 @@ class BaseModel:
         Function that returns the dictionary representation of the
         class
         """
-        attr = ["my_number", "name", "__class__", "updated_at", "id",
-                "created_at" ]
-        dict_attr = {}
-
-        for key in attr:
-            if key == "__class__":
-                dict_attr[key] = self.__class__.__name__
-                continue
-            if key == 'my_number':
-                dict_attr[key] = getattr(self, key)
-                continue
-            dict_attr[key] ="{}".format(getattr(self, key))
-
-        return dict_attr
+        attrs = self.__dict__.copy()
+        attrs['__class__'] = self.__class__.__name__
+        attrs['created_at'] = self.created_at.isoformat()
+        attrs['updated_at'] = self.updated_at.isoformat()
+        return (attrs)

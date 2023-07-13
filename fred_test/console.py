@@ -189,12 +189,13 @@ class HBNBCommand(cmd.Cmd):
                 obj_dict = obj.__dict__
                 ty_pe = type(obj_dict[attr])
                 obj_dict[attr] = ty_pe(val)
-                storage.save()
             elif type(obj) != str and not obj.to_dict().get(attr):
-                obj.__dict__[attr] = val
-                storage.save()
+                key = obj.to_dict()['__class__'] + "." + obj.id
+                setattr(storage.all()[key], attr, val)
+                print(storage.all()[key].__dict__)
             elif type(obj) == str:
                 print(obj)
+            storage.save()
 
 
 if __name__ == '__main__':

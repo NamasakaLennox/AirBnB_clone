@@ -2,9 +2,15 @@
 """
 A module that contains the console
 """
+from models.amenity import Amenity
 from models.base_model import BaseModel
+from models.city import City
 import cmd
+from models.place import Place
+from models.state import State
+from models.review import Review
 from models import storage
+from models.user import User
 
 
 class HBNBCommand(cmd.Cmd):
@@ -14,7 +20,9 @@ class HBNBCommand(cmd.Cmd):
     Inherits:
         cmd.Cmd (class)
     """
-    prompt = "(hbnb)"
+    prompt = "(hbnb) "
+    valid_classes = ["BaseModel", "User", "State", "City",
+                  "Amenity", "Place", "Review"]
 
     def do_quit(self, line):
         """Function that exits the program
@@ -31,8 +39,8 @@ class HBNBCommand(cmd.Cmd):
         """
         return False
 
-    @staticmethod
-    def is_valid_class(args):
+    @classmethod
+    def is_valid_class(cls, args):
         """Checks if class name is valid
 
         Args:(args)
@@ -48,7 +56,7 @@ class HBNBCommand(cmd.Cmd):
         if not cls_name:
             print("** class name missing **")
             return False
-        elif cls_name not in ['BaseModel']:
+        elif cls_name not in cls.valid_classes:
             print("** class doesn't exist **")
             return False
         elif not id:
@@ -58,10 +66,11 @@ class HBNBCommand(cmd.Cmd):
             return True
 
     @staticmethod
-    def get_obj(id):
+    def get_obj(id : str, cls_name=None):
         """Function that gets instance given the id
 
         Args:
+            cls_name :str - class name
             id (str) - the id of instance
         Returns:
             object | str (if no instance is found)
@@ -71,7 +80,9 @@ class HBNBCommand(cmd.Cmd):
             return ("** no instance found **")
         for value in list(objs.values()):
             obj_dict = value.to_dict()
-            if obj_dict["id"] == id:
+            inst_id = obj_dict["id"]
+            inst_name = obj_dict["__class__"]
+            if inst_id == id and inst_name == cls_name:
                 return (value)
         else:
             return ("** no instance found **")
@@ -83,8 +94,10 @@ class HBNBCommand(cmd.Cmd):
         args_ls = args.split(" ")
         cls_name = args_ls[0] if len(args_ls) > 0 else ""
         if self.is_valid_class(cls_name + " no_id"):
-            new = BaseModel() if cls_name == 'BaseModel' else BaseModel()
+            new = eval(cls_name)()
+            new.save()
             print(new.id)
+
 
     def do_show(self, args : str):
         """Function that prints the string representation of
@@ -92,8 +105,9 @@ class HBNBCommand(cmd.Cmd):
         """
         if self.is_valid_class(args):
             args_ls = args.split(" ")
+            cls_name = args_ls[0] if len(args_ls) > 0 else ""
             id = args_ls[1] if len(args_ls) > 1 else "no_id"
-            obj = self.get_obj(id)
+            obj = self.get_obj(id, cls_name)
             print(obj)
 
     def do_destroy(self, args):
@@ -106,8 +120,9 @@ class HBNBCommand(cmd.Cmd):
         """
         if self.is_valid_class(args):
             args_ls = args.split(" ")
+            cls_name = args_ls[0] if len(args_ls) > 0 else ""
             id = args_ls[1] if len(args_ls) > 1 else ""
-            obj = self.get_obj(id)
+            obj = self.get_obj(id, cls_name)
 
             if type(obj) == str:
                 print(obj)
@@ -150,22 +165,36 @@ class HBNBCommand(cmd.Cmd):
             `val`  - new value of attr\n
         """
         cmds = args.split(" ")
+        name = cmds[0] if len(cmds) > 0 else None
+        id = cmds[1] if len(cmds) > 1 else None
         attr = cmds[2] if len(cmds) > 2 else None
         val = cmds[3].strip(' "' + "'") if len(cmds) > 3 else None
 
-
-        if self.is_valid_class(args):
-            obj = self.get_obj(cmds[1])
-
-            if type(obj) != str and obj.to_dict().get(attr):
-                ty_pe = type(obj.to_dict()[attr])
-                setattr(obj, attr, ty_pe(val))
-            elif type(obj) == str:
-                print(obj)
+        if not name:
+            print("** class name missing **")
+        elif name not in self.valid_classes:
+            print("** class doesn't exist **")
+        elif not id:
+            print("** instance id missing **")
         elif not attr:
             print("** attribute name missing **")
         elif not val:
             print("** value missing **")
+        else:
+            name = cmds[0]
+            id = cmds[1]
+            obj = self.get_obj(id, name)
+
+            if type(obj) != str and obj.to_dict().get(attr):
+                obj_dict = obj.__dict__
+                ty_pe = type(obj_dict[attr])
+                obj_dict[attr] = ty_pe(val)
+                storage.save()
+            elif type(obj) != str and not obj.to_dict().get(attr):
+                obj.__dict__[attr] = val
+                storage.save()
+            elif type(obj) == str:
+                print(obj)
 
 
 if __name__ == '__main__':

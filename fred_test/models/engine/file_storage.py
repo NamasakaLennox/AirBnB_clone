@@ -29,12 +29,11 @@ class FileStorage:
         Function that serializes __objects to JSON in
         the `__file_path`
         """
+        tmp_dict = {}
+        for key, value in self.__objects.items():
+            tmp_dict[key] = value.to_dict()
         with open(self.__file_path, "w") as fstore:
-            tmp_dict = {}
-            for key, value in self.__objects.items():
-                tmp_dict[key] = value.to_dict()
-
-            json.dump(tmp_dict, fstore)
+            fstore.write( json.dumps(tmp_dict))
 
     def reload(self):
         """
@@ -42,10 +41,20 @@ class FileStorage:
         (only if the JSON `__file_path` exists)
         """
         try:
+            from models.amenity import Amenity
             from models.base_model import BaseModel
+            from models.city import City
+            import cmd
+            from models.place import Place
+            from models.review import Review
+            from models.state import State
+            from models import storage
+            from models.user import User
+
+
             with open(self.__file_path, "r") as fstore:
                 st_objs = json.load(fstore)
                 for key, value in st_objs.items():
-                    self.__objects[key] = BaseModel(**value)
+                    self.__objects[key] = eval(value['__class__'])(**value)
         except Exception:
             pass

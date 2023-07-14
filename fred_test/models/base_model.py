@@ -23,8 +23,6 @@ class BaseModel:
                     value = datetime.datetime.fromisoformat(value)
                 setattr(self, key, value)
         else:
-            self.my_number = None
-            self.name = ""
             self.id ="{}".format(uuid.uuid4())
             self.created_at = datetime.datetime.now()
             self.updated_at = datetime.datetime.now()

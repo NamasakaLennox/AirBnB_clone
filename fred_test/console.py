@@ -15,8 +15,7 @@ from models.user import User
 
 class HBNBCommand(cmd.Cmd):
     """
-    A cmd interpretor class
-
+    A cmd interpretor class\n
     Inherits:
         cmd.Cmd (class)
     """
@@ -38,24 +37,35 @@ class HBNBCommand(cmd.Cmd):
         """Executes when no commands input
         """
         return False
+    @staticmethod
+    def get_args(argstr : str) -> dict:
+        """Utility function to tokenize a string of arguments to
+        individual arguments\n
+        Args:
+            `args` (str) - arg string
+        Returns:
+            `args` (dict) - dictionary of arguments\n
+            (class_name, id, attr, val)
+        """
+        args = argstr.split(" ")
+        cls_name = args[0] if len(args) > 0 else None
+        id = args[1] if len(args) > 1 else "no_id"
+        attr = args[2] if len(args) > 2 else "not_upd"
+        val = args[3].strip(' "' + "'") if len(args) > 3 else "not_upd"
+
+        return {'cls_name': cls_name, 'id': id,'attr': attr,
+                'val': val}
 
     @staticmethod
-    def is_valid_class(args, **kwargs) -> bool:
-        """(Utility function) -> Checks if class name is valid
-
-        Args:(args)
-                `cls_name` (str) - class name\n
-                `id` (str) - uuid of class\n
-            (**kwargs)
-                `attr` - attribute to check\n
-                `value` - value to check
+    def is_valid_class(args) -> bool:
+        """(Utility function) -> Checks if class name is valid\n
+        Args:
+            `args` (str) - argument string\n
         Returns:
             `True` | `False` if class name is valid or not
         """
-        cmds = args.split(" ")
-        cls_name = cmds[0] if len(cmds) > 0 else None
-        id = cmds[1] if len(cmds) > 1 else None
-        obj_info = kwargs['obj'] if kwargs.get('obj') else None
+        (cls_name, id, attr, val) = HBNBCommand.get_args(args).values()
+        obj = HBNBCommand.get_obj(cls_name, id)
 
         if not cls_name:
             print("** class name missing **")
@@ -66,13 +76,14 @@ class HBNBCommand(cmd.Cmd):
         elif not id:
             print("** instance id missing **")
             return False
-        elif type(obj_info) == str:
+        elif id != "no_id" and not obj:
+            # if id exists and is wrong
             print("** no instance found **")
             return False
-        elif kwargs and not kwargs.get('attr'):
+        elif attr != "not_upd" and not attr:
             print("** attribute name missing **")
             return False
-        elif kwargs and not kwargs.get('val'):
+        elif val != "not_upd" and not val:
             print("** value missing **")
             return False
         else:
@@ -80,83 +91,76 @@ class HBNBCommand(cmd.Cmd):
 
     @staticmethod
     def get_obj(cls_name, id):
-        """Function that gets instance given the id
-
+        """Function that gets instance given the id\n
         Args:
-            cls_name :str - class name
-            id (str) - the id of instance
+            `cls_name` (str) - class name\n
+            `id` (str) - the id of instance\n
         Returns:
-            object | str (if no instance is found)
+            `object` - instance
         """
         objs = storage.all()
-        if len(list(objs.values())) < 1:
-            return ("** no instance found **")
         for value in list(objs.values()):
             obj_dict = value.to_dict()
             inst_id = obj_dict["id"]
             inst_name = obj_dict["__class__"]
             if inst_id == id and inst_name == cls_name:
                 return (value)
-        else:
-            return ("** no instance found **")
+
+        return None
 
     def do_create(self, args):
-        """Function that creates new instance of BaseModel,
-        saves it to JSON file and prints the id
+        """Usage: `create <class name>`\n
+        Function that creates new instance of BaseModel,
+        saves it to JSON file and prints the id\n
+        Args:
+            `args` (str) - string of commands to execute
         """
-        args_ls = args.split(" ")
-        cls_name = args_ls[0] if len(args_ls) > 0 else ""
-        if self.is_valid_class(cls_name + " no_id"):
+        if self.is_valid_class(args):
+            cls_name = HBNBCommand.get_args(args)['cls_name']
             new = eval(cls_name)()
             new.save()
             print(new.id)
 
 
     def do_show(self, args : str):
-        """Function that prints the string representation of
-        object based on object name and id
+        """Usage: `show <class name> <id>`\n
+        Function that prints the string representation of
+        object based on object name and id\n
+            `args` (str) - string of commands to execute
         """
-        args_ls = args.split(" ")
-        cls_name = args_ls[0] if len(args_ls) > 0 else ""
-        id = args_ls[1] if len(args_ls) > 1 else "no_id"
-        obj = self.get_obj(cls_name, id)
-        if self.is_valid_class(args, obj=obj):
+        if self.is_valid_class(args):
+            obj = HBNBCommand.get_args(args)['obj']
             print(obj)
 
     def do_destroy(self, args):
-        """Function that deletes an instance based on the class name
-        and id (save the change into the JSON file)
-
+        """Usage: `destroy <class name> <id>`\n
+        Function that deletes an instance based on the class name
+        and id (save the change into the JSON file)\n
         Args:
-            cls_name (str) - class name
-            id (str) - uuid of class
+            `args` (str) - string of commands to execute\n
         """
-        args_ls = args.split(" ")
-        cls_name = args_ls[0] if len(args_ls) > 0 else ""
-        id = args_ls[1] if len(args_ls) > 1 else ""
-        obj = self.get_obj(cls_name, id)
-
-        if self.is_valid_class(args, obj=obj):
+        if self.is_valid_class(args):
+            (cls_name, id, _, _) = HBNBCommand.get_args(args).values()
+            obj = HBNBCommand.get_obj(cls_name, id)
             key = obj.to_dict()['__class__'] + "." + obj.id
             del storage.all()[key]
             storage.save()
 
     def do_all(self, args):
-        """ Prints all string representation of all instances based
+        """Usage: `all <class name>` or `all`\n
+        Prints all string representation of all instances based
         or not on the class name\n
         Args:
-            `*args` (str) - class name\n
+            `args` (str) - string of commands to execute\n
         """
-        args_ls = args.split(" ")
         all_objs = storage.all()
         obj_list = []
-        cls_name = args_ls[0] if len(args_ls) > 0 else ""
-
+        cls_name = HBNBCommand.get_args(args)['cls_name']
         if not cls_name:
             obj_list = list("{}".format(value)
                             for value in list(all_objs.values()))
             print(obj_list)
-        elif self.is_valid_class(cls_name + " no_id"):
+        elif self.is_valid_class(args):
             obj_list = list("{}".format(value)
                             for value in list(all_objs.values())
                             if value.to_dict()['__class__']
@@ -164,25 +168,18 @@ class HBNBCommand(cmd.Cmd):
             print(obj_list)
 
     def do_update(self, args):
-        """Usage: update `<class name>` `<id>` `<attribute name>` `"<attribute value>"`\n
+        """Usage: update `<class name>` `<id>` `<attribute name> `
+        `"<attribute value>"`\n
         Function that updates an instance based on the class name
         and id by adding or updating attribute
-        (save the change into the JSON file)
-
-        Args: (args)
-            `class name`  - class name,\n
-            `id`  - id of class,\n
-            `attr`  - attribute to change,\n
-            `val`  - new value of attr\n
+        (save the change into the JSON file)\n
+        Args:
+            `args` (str) - string of commands to execute\n
         """
-        cmds = args.split(" ")
-        name = cmds[0] if len(cmds) > 0 else None
-        id = cmds[1] if len(cmds) > 1 else None
-        attr = cmds[2] if len(cmds) > 2 else None
-        val = cmds[3].strip(' "' + "'") if len(cmds) > 3 else None
-        obj = self.get_obj(name, id)
+        (cls_name, id, attr, val) = HBNBCommand.get_args(args).values()
+        obj = HBNBCommand.get_obj(cls_name, id)
 
-        if self.is_valid_class(args, attr=attr, val=val, obj=obj):
+        if self.is_valid_class(args):
             if obj.to_dict().get(attr):
                 obj_dict = obj.__dict__
                 ty_pe = type(obj_dict[attr])
@@ -193,7 +190,6 @@ class HBNBCommand(cmd.Cmd):
             elif type(obj) == str:
                 print(obj)
             storage.save()
-
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()

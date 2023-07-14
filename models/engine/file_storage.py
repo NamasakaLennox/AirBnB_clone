@@ -4,7 +4,6 @@ A module that serializes instances to JSON file
 Also deserializes JSON file to an instance
 """
 import json
-import os
 
 
 class FileStorage:
@@ -58,7 +57,7 @@ class FileStorage:
         from models.place import Place
         from models.review import Review
 
-        if os.path.isfile(self.__file_path):
+        try:
             # open the file as read only
             with open(self.__file_path, "r", encoding="utf-8") as file_read:
                 temp = json.loads(file_read.read())  # load the json string
@@ -67,3 +66,5 @@ class FileStorage:
                 for key, value in temp.items():
                     # get name of class and construct the object from it
                     self.__objects[key] = eval(value['__class__'])(**value)
+        except FileNotFoundError:
+            pass

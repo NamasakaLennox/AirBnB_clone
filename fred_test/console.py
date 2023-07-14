@@ -39,34 +39,47 @@ class HBNBCommand(cmd.Cmd):
         """
         return False
 
-    @classmethod
-    def is_valid_class(cls, args):
-        """Checks if class name is valid
+    @staticmethod
+    def is_valid_class(args, **kwargs) -> bool:
+        """(Utility function) -> Checks if class name is valid
 
         Args:(args)
-            `cls_name` (str) - class name\n
-            `id` (str) - uuid of class\n
+                `cls_name` (str) - class name\n
+                `id` (str) - uuid of class\n
+            (**kwargs)
+                `attr` - attribute to check\n
+                `value` - value to check
         Returns:
             `True` | `False` if class name is valid or not
         """
         cmds = args.split(" ")
         cls_name = cmds[0] if len(cmds) > 0 else None
         id = cmds[1] if len(cmds) > 1 else None
+        obj_info = kwargs['obj'] if kwargs.get('obj') else None
 
         if not cls_name:
             print("** class name missing **")
             return False
-        elif cls_name not in cls.valid_classes:
+        elif cls_name not in HBNBCommand.valid_classes:
             print("** class doesn't exist **")
             return False
         elif not id:
             print("** instance id missing **")
             return False
+        elif type(obj_info) == str:
+            print("** no instance found **")
+            return False
+        elif kwargs and not kwargs.get('attr'):
+            print("** attribute name missing **")
+            return False
+        elif kwargs and not kwargs.get('val'):
+            print("** value missing **")
+            return False
         else:
             return True
 
     @staticmethod
-    def get_obj(id : str, cls_name=None):
+    def get_obj(cls_name, id):
         """Function that gets instance given the id
 
         Args:
@@ -103,11 +116,11 @@ class HBNBCommand(cmd.Cmd):
         """Function that prints the string representation of
         object based on object name and id
         """
-        if self.is_valid_class(args):
-            args_ls = args.split(" ")
-            cls_name = args_ls[0] if len(args_ls) > 0 else ""
-            id = args_ls[1] if len(args_ls) > 1 else "no_id"
-            obj = self.get_obj(id, cls_name)
+        args_ls = args.split(" ")
+        cls_name = args_ls[0] if len(args_ls) > 0 else ""
+        id = args_ls[1] if len(args_ls) > 1 else "no_id"
+        obj = self.get_obj(cls_name, id)
+        if self.is_valid_class(args, obj=obj):
             print(obj)
 
     def do_destroy(self, args):
@@ -118,17 +131,15 @@ class HBNBCommand(cmd.Cmd):
             cls_name (str) - class name
             id (str) - uuid of class
         """
-        if self.is_valid_class(args):
-            args_ls = args.split(" ")
-            cls_name = args_ls[0] if len(args_ls) > 0 else ""
-            id = args_ls[1] if len(args_ls) > 1 else ""
-            obj = self.get_obj(id, cls_name)
+        args_ls = args.split(" ")
+        cls_name = args_ls[0] if len(args_ls) > 0 else ""
+        id = args_ls[1] if len(args_ls) > 1 else ""
+        obj = self.get_obj(cls_name, id)
 
-            if type(obj) == str:
-                print(obj)
-            elif  obj and type(obj) != str:
-                key = obj.to_dict()['__class__'] + "." + obj.id
-                del storage.all()[key]
+        if self.is_valid_class(args, obj=obj):
+            key = obj.to_dict()['__class__'] + "." + obj.id
+            del storage.all()[key]
+            storage.save()
 
     def do_all(self, args):
         """ Prints all string representation of all instances based
@@ -169,30 +180,16 @@ class HBNBCommand(cmd.Cmd):
         id = cmds[1] if len(cmds) > 1 else None
         attr = cmds[2] if len(cmds) > 2 else None
         val = cmds[3].strip(' "' + "'") if len(cmds) > 3 else None
+        obj = self.get_obj(name, id)
 
-        if not name:
-            print("** class name missing **")
-        elif name not in self.valid_classes:
-            print("** class doesn't exist **")
-        elif not id:
-            print("** instance id missing **")
-        elif not attr:
-            print("** attribute name missing **")
-        elif not val:
-            print("** value missing **")
-        else:
-            name = cmds[0]
-            id = cmds[1]
-            obj = self.get_obj(id, name)
-
-            if type(obj) != str and obj.to_dict().get(attr):
+        if self.is_valid_class(args, attr=attr, val=val, obj=obj):
+            if obj.to_dict().get(attr):
                 obj_dict = obj.__dict__
                 ty_pe = type(obj_dict[attr])
                 obj_dict[attr] = ty_pe(val)
-            elif type(obj) != str and not obj.to_dict().get(attr):
-                key = obj.to_dict()['__class__'] + "." + obj.id
-                setattr(storage.all()[key], attr, val)
-                print(storage.all()[key].__dict__)
+            elif not obj.to_dict().get(attr):
+                obj_key = obj.to_dict()['__class__'] + "." + obj.id
+                setattr(storage.all()[obj_key], attr, val)
             elif type(obj) == str:
                 print(obj)
             storage.save()

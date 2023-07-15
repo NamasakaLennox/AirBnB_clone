@@ -22,6 +22,35 @@ class HBNBCommand(cmd.Cmd):
     class_list = ["BaseModel", "User", "State", "City",
                   "Amenity", "Place", "Review"]
 
+    def precmd(self, args):
+        """Function that parses the command before processing"""
+        if all([char in args for char in ".()"]):
+            args_ls = args.split(".")
+            cls_name = args_ls[0]
+            cmnd = args_ls[1].split("(")
+            argms = cmnd[1].split(")")[0].split(",")
+
+            arg1 = argms[0].strip('"') if len(argms) > 0 else ""
+            arg2 = argms[1].split('"')[1] if len(argms) > 1 else ""
+            arg3 = argms[2] if len(argms) > 2 else ""
+
+            if cls_name in self.class_list:
+                args = "{} {} {} {} {}".format(cmnd[0], cls_name,
+                                         arg1, arg2, arg3)
+        print(args)
+        return args
+
+    def do_count(self, args):
+        """Function to retrieve the number of instances of a class"""
+        all_objs = storage.all()
+        args_ls = args.split(" ")
+        cls_name = args_ls[1]
+        count = 0
+        for key, value in all_objs.items():
+            if key.split(".")[0] == cls_name:
+                count += 1
+        print(count)
+
     def do_create(self, args):
         """Creates a new instance of the BaseModel class
         Saves it and prints the id of the instance

@@ -37,14 +37,13 @@ class HBNBCommand(cmd.Cmd):
             if cls_name in self.class_list:
                 args = "{} {} {} {} {}".format(cmnd[0], cls_name,
                                          arg1, arg2, arg3)
-        print(args)
         return args
 
     def do_count(self, args):
         """Function to retrieve the number of instances of a class"""
         all_objs = storage.all()
         args_ls = args.split(" ")
-        cls_name = args_ls[1]
+        cls_name = args_ls[0]
         count = 0
         for key, value in all_objs.items():
             if key.split(".")[0] == cls_name:

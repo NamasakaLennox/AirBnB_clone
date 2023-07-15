@@ -7,6 +7,7 @@ import os
 from models.city import City
 from models.base_model import BaseModel
 
+
 class TestCity(unittest.TestCase):
     """
     A class that tests the State class which inherits from BaseModel
@@ -18,7 +19,7 @@ class TestCity(unittest.TestCase):
         """
         try:
             os.remove("file.json")
-        except:
+        except IOError:
             pass
 
     def tearDown(self):
@@ -27,7 +28,7 @@ class TestCity(unittest.TestCase):
         """
         try:
             os.remove("file.json")
-        except:
+        except IOError:
             pass
 
     def test_init(self):

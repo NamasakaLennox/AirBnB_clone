@@ -7,6 +7,7 @@ import os
 from models.review import Review
 from models.base_model import BaseModel
 
+
 class TestReview(unittest.TestCase):
     """
     A class that tests the State class which inherits from BaseModel
@@ -18,7 +19,7 @@ class TestReview(unittest.TestCase):
         """
         try:
             os.remove("file.json")
-        except:
+        except IOError:
             pass
 
     def tearDown(self):
@@ -27,7 +28,7 @@ class TestReview(unittest.TestCase):
         """
         try:
             os.remove("file.json")
-        except:
+        except IOError:
             pass
 
     def test_init(self):

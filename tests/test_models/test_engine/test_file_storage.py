@@ -33,6 +33,9 @@ class TestFileStorage(unittest.TestCase):
             pass
 
     def tearDown(self):
+        """
+        Removes any file created after execution of the test
+        """
         try:
             os.remove("file.json")
         except IOError:

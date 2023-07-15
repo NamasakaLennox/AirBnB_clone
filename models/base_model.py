@@ -9,6 +9,9 @@ from models import storage
 
 
 class BaseModel:
+    """
+    The Base class for all other classes.
+    """
     def __init__(self, *args, **kwargs):
         """
         Constructor that initializes the instance attributes
@@ -43,6 +46,9 @@ class BaseModel:
         storage.save()
 
     def to_dict(self):
+        """
+        An instance method that converts the object to a dictionary format
+        """
         output = self.__dict__.copy()
         output['__class__'] = self.__class__.__name__
         output['created_at'] = self.created_at.isoformat()

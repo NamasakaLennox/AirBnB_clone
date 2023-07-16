@@ -31,7 +31,7 @@ class HBNBCommand(cmd.Cmd):
             argms = cmnd[1].split(")")[0].split(",")
 
             id = argms[0].strip('"') if len(argms) > 0 else ""
-            attr = argms[1].split('"')[1] if len(argms) > 1 else ""
+            attr = argms[1].strip('"')[1] if len(argms) > 1 else ""
             val = argms[2] if len(argms) > 2 else ""
 
             dict_check = []

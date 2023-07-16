@@ -139,11 +139,11 @@ class TestHBNBCommand(unittest.TestCase):
         tests the update method
         """
         with patch('sys.stdout', new=StringIO()) as output:
-            HBNBCommand().onecmd("sldkfjsl.update()")
+            HBNBCommand().onecmd("update dfre")
             self.assertEqual("** class doesn't exist **\n", output.getvalue())
 
         with patch('sys.stdout', new=StringIO()) as output:
-            HBNBCommand().onecmd("User.update(54664565465)")
+            HBNBCommand().onecmd("update User 54664565465")
             self.assertEqual("** no instance found **\n", output.getvalue())
 
         with patch('sys.stdout', new=StringIO()) as output:
@@ -155,12 +155,12 @@ class TestHBNBCommand(unittest.TestCase):
         obj_id = obj[obj.find('(')+1:obj.find(')')]
 
         with patch('sys.stdout', new=StringIO()) as output:
-            HBNBCommand().onecmd("User.update(" + obj_id + ")")
+            HBNBCommand().onecmd("update User " + obj_id)
             self.assertEqual("** attribute name missing **\n",
                              output.getvalue())
 
         with patch('sys.stdout', new=StringIO()) as output:
-            HBNBCommand().onecmd("User.update(" + obj_id + ", name)")
+            HBNBCommand().onecmd("update User " + obj_id + " name")
             self.assertEqual("** value missing **\n",
                              output.getvalue())
 
@@ -177,3 +177,7 @@ class TestHBNBCommand(unittest.TestCase):
         """
         with patch("sys.stdout", new=StringIO()) as output:
             self.assertTrue(HBNBCommand().onecmd("EOF"))
+
+
+if __name__ == "__main__":
+    unittest.main()

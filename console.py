@@ -30,13 +30,25 @@ class HBNBCommand(cmd.Cmd):
             cmnd = args_ls[1].split("(")
             argms = cmnd[1].split(")")[0].split(",")
 
-            arg1 = argms[0].strip('"') if len(argms) > 0 else ""
-            arg2 = argms[1].split('"')[1] if len(argms) > 1 else ""
-            arg3 = argms[2] if len(argms) > 2 else ""
+            id = argms[0].strip('"') if len(argms) > 0 else ""
+            attr = argms[1].split('"')[1] if len(argms) > 1 else ""
+            val = argms[2] if len(argms) > 2 else ""
 
-            if cls_name in self.class_list:
+            if all([char in argms[1] + argms[2] for char in "{:}"]):
+                attrs : str = ",".join([argms[1], argms[2]]).strip("{ }")
+                attrs = attrs.split(",")
+                for att in attrs:
+                    args = "{} {} {} {} {}".format(cmnd[0], cls_name,
+                                             id,
+                                             att.split(":")[0]
+                                            .strip('" " ' + "'"),
+                                             att.split(":")[1])
+
+                    self.onecmd(args)
+
+            elif cls_name in self.class_list:
                 args = "{} {} {} {} {}".format(cmnd[0], cls_name,
-                                         arg1, arg2, arg3)
+                                         id, attr, val)
         return args
 
     def do_count(self, args):

@@ -41,10 +41,7 @@ class HBNBCommand(cmd.Cmd):
             except Exception:
                 dict_check = []
 
-            is_class = cls_name in self.class_list
-
-            if is_class and all([char in dict_check
-                                 for char in "{:}"]):
+            if all([char in dict_check for char in "{:}"]):
                 attrs = ",".join([argms[1], argms[2]]).strip("{ }")
                 attrs = attrs.split(",")
 
@@ -56,7 +53,7 @@ class HBNBCommand(cmd.Cmd):
 
                     self.onecmd(args)
 
-            elif is_class:
+            else:
                 args = "{} {} {} {} {}".format(cmnd[0], cls_name,
                                                id, attr, val)
         return args

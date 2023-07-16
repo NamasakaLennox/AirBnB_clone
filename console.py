@@ -34,9 +34,20 @@ class HBNBCommand(cmd.Cmd):
             attr = argms[1].split('"')[1] if len(argms) > 1 else ""
             val = argms[2] if len(argms) > 2 else ""
 
-            if all([char in argms[1] + argms[2] for char in "{:}"]):
-                attrs : str = ",".join([argms[1], argms[2]]).strip("{ }")
+            dict_check = []
+
+            try:
+                dict_check = argms[1] + argms[2]
+            except Exception:
+                dict_check = []
+
+            is_class = cls_name in self.class_list
+
+            if is_class and all([char in dict_check
+                                 for char in "{:}"]):
+                attrs = ",".join([argms[1], argms[2]]).strip("{ }")
                 attrs = attrs.split(",")
+
                 for att in attrs:
                     args = "{} {} {} {} {}".format(cmnd[0], cls_name,
                                              id,
@@ -46,7 +57,7 @@ class HBNBCommand(cmd.Cmd):
 
                     self.onecmd(args)
 
-            elif cls_name in self.class_list:
+            elif is_class:
                 args = "{} {} {} {} {}".format(cmnd[0], cls_name,
                                          id, attr, val)
         return args
@@ -168,9 +179,9 @@ class HBNBCommand(cmd.Cmd):
                     if list_args[2] in obj_dict.keys():
                         # maintain the type if present
                         obj_dict[list_args[2]] = type(obj_dict[list_args[2]]
-                                                      )(list_args[3])
+                                                      )(list_args[3].strip("'" + '"'))
                     else:
-                        obj_dict[list_args[2]] = list_args[3]  # create new
+                        obj_dict[list_args[2]] = list_args[3].strip("'" + '"')  # create new
 
                     storage.save()
 

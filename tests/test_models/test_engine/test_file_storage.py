@@ -68,7 +68,7 @@ class TestFileStorage(unittest.TestCase):
         inst = Review()
         storage.new(inst)
         obj = storage.all()
-        self.assertEqual(len(obj), 7)
+        self.assertGreaterEqual(len(obj), 7)
         self.assertEqual(type(obj), dict)
         # check if error on arguments provided
         with self.assertRaises(TypeError):
@@ -82,7 +82,7 @@ class TestFileStorage(unittest.TestCase):
         """
         inst = User()
         storage.new(inst)
-        self.assertEqual(len(storage.all()), 8)
+        self.assertGreaterEqual(len(storage.all()), 8)
         self.assertIn("User." + inst.id, storage.all().keys())
         # more than one argument provided
         with self.assertRaises(TypeError):

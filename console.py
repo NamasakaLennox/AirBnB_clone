@@ -50,16 +50,15 @@ class HBNBCommand(cmd.Cmd):
 
                 for att in attrs:
                     args = "{} {} {} {} {}".format(cmnd[0], cls_name,
-                                             id,
-                                             att.split(":")[0]
-                                            .strip('" " ' + "'"),
-                                             att.split(":")[1])
+                                                   id, att.split(":")[0]
+                                                   .strip('" " ' + "'"),
+                                                   att.split(":")[1])
 
                     self.onecmd(args)
 
             elif is_class:
                 args = "{} {} {} {} {}".format(cmnd[0], cls_name,
-                                         id, attr, val)
+                                               id, attr, val)
         return args
 
     def do_count(self, args):
@@ -178,10 +177,11 @@ class HBNBCommand(cmd.Cmd):
                     obj_dict = all_obj[name_id].__dict__
                     if list_args[2] in obj_dict.keys():
                         # maintain the type if present
-                        obj_dict[list_args[2]] = type(obj_dict[list_args[2]]
-                                                      )(list_args[3].strip("'" + '"'))
-                    else:
-                        obj_dict[list_args[2]] = list_args[3].strip("'" + '"')  # create new
+                        type_obj = type(obj_dict[list_args[2]])
+                        obj_dict[list_args[2]] = type_obj(list_args[3].
+                                                          strip("'" + '"'))
+                    else:  # create new
+                        obj_dict[list_args[2]] = list_args[3].strip("'" + '"')
 
                     storage.save()
 
